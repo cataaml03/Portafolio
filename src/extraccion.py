@@ -88,7 +88,18 @@ def extraer_serie_bcch(codigo: str, desde: str = "2010-01-01", hasta: str | None
     # La API entrega fechas dd-mm-YYYY y valores como texto; 'NaN' indica dato faltante
     df["fecha"] = pd.to_datetime(df["indexDateString"], format="%d-%m-%Y")
     df["valor"] = pd.to_numeric(df["value"], errors="coerce")
-    return df[["fecha", "valor"]].dropna().reset_index(drop=True)
+
+
+    # Eliminamos los registros sin datos válidos
+    df = df[["fecha", "valor"]].dropna().reset_index(drop=True)
+
+    # Comprobamos que la serie tenga observaciones
+    if df.empty:
+        raise ValueError(
+            f"La serie {codigo} no tiene observaciones válidas.")
+
+    return df
+
 
 
 # ------------------------------------------------------------
@@ -114,7 +125,18 @@ def extraer_serie_fred(codigo: str, desde: str = "2010-01-01", hasta: str | None
     df = pd.DataFrame(obs)
     df["fecha"] = pd.to_datetime(df["date"])
     df["valor"] = pd.to_numeric(df["value"], errors="coerce")  # '.' indica dato faltante en FRED
-    return df[["fecha", "valor"]].dropna().reset_index(drop=True)
+
+
+    # Eliminamos los registros sin datos válidos
+    df = df[["fecha", "valor"]].dropna().reset_index(drop=True)
+
+    # Comprobamos que la serie tenga observaciones
+    if df.empty:
+        raise ValueError(
+            f"La serie {codigo} no tiene observaciones válidas.")
+
+    return df
+
 
 
 # ------------------------------------------------------------
@@ -164,9 +186,9 @@ def extraer_todo(
 
     Devuelve un diccionario {codigo: DataFrame(fecha, valor)}.
 
-    Nota: si una serie falla, se informa y se continúa con las demás. El
-    proceso termina sin error aunque falten series, así que revisen la
-    salida y cuenten los [OK].
+    Nota: si una serie falla, se informa el error y se continúa
+    intentando descargar las demás. Al finalizar, si hubo alguna
+    falla, el programa se detiene para evitar una carga incompleta.
     """
     resultados: dict[str, pd.DataFrame] = {}
     catalogo = config.SERIES_BCCH + config.SERIES_FRED
@@ -188,8 +210,11 @@ def extraer_todo(
             print(f"  [ERROR] {nombre} ({codigo}): {enmascarar(str(e))}")
 
     if fallidas:
-        print(f"\n  ATENCION: {len(fallidas)} de {len(catalogo)} series fallaron: "
-              f"{', '.join(fallidas)}")
+        print(f"\n[ERROR] Fallaron {len(fallidas)} de {len(catalogo)} series.")
+        raise RuntimeError(
+            "Extracción incompleta. Revisar las series que mostraron [ERROR].")
+
+    print(f"\n[OK] Se descargaron las {len(resultados)} series correctamente.")
     return resultados
 
 
