@@ -128,6 +128,7 @@ Se desarrollaron tres consultas específicas para el proyecto:
 1. Utilizamos JOIN para relacionar las tablas de nuestra base y así obtener las últimas observaciones disponibles de los indicadores de precios.
 2. Utilizamos GROUP BY para calcular el promedio de la inflación interanual de cada año.
 3. Utilizamos LAG() para calcular la variación interanual de los componentes transables y no transables del IPC.
+4. Utilizamos GROUP BY, AVG y LAG para analizar variaciones interanuales del tipo de cambio y el precio del petroleo.
 
 Las consultas se encuentran en el archivo: sql/04_consultas_inflacion.sql
 
