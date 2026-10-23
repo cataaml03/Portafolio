@@ -123,7 +123,7 @@ El notebook utiliza la base SQLite generada en el paso anterior.
 
 ## 6. Consultas SQL
 
-Se desarrollaron tres consultas específicas para el proyecto:
+Se desarrollaron cuatro consultas específicas para el proyecto:
 
 1. Utilizamos JOIN para relacionar las tablas de nuestra base y así obtener las últimas observaciones disponibles de los indicadores de precios.
 2. Utilizamos GROUP BY para calcular el promedio de la inflación interanual de cada año.
